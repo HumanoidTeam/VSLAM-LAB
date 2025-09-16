@@ -8,6 +8,7 @@ from Datasets.dataset_scannetplusplus import SCANNETPLUSPLUS_dataset
 
 from Datasets.dataset_euroc import EUROC_dataset
 from Datasets.dataset_vitum import VITUM_dataset
+from Datasets.dataset_hmnd import HMND_dataset
 
 
 from Datasets.dataset_lizardisland import LIZARDISLAND_dataset
@@ -44,6 +45,7 @@ def get_dataset(dataset_name, benchmark_path):
         #Datasets for Visual-Inertial SLAM
         "euroc": lambda: EUROC_dataset(benchmark_path),
         "vitum": lambda: VITUM_dataset(benchmark_path),
+        "hmnd": lambda: HMND_dataset(benchmark_path),
         
         #other datasets
         "rgbdtum": lambda: RGBDTUM_dataset(benchmark_path),

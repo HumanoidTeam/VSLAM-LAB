@@ -1,0 +1,13 @@
+dataset_name: hmnd
+
+resolution_scale: 1.0
+
+rgb_hz: 30.0
+imu_hz: 200.0
+
+# For locally generated datasets, sequences are discovered from the filesystem.
+# This list can be left empty; Dataset class will enumerate directories.
+sequence_names: 
+  - head_front_bottom
+
+

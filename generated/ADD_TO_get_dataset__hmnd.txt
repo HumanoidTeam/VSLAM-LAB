@@ -1,0 +1,6 @@
+# In VSLAM-LAB/Datasets/get_dataset.py:
+
+from Datasets.dataset_hmnd import HMND_dataset
+
+# In switcher mapping:
+    'hmnd': lambda: HMND_dataset(benchmark_path),
