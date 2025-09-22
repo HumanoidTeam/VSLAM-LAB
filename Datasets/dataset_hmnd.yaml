@@ -1,0 +1,8 @@
+dataset_name: hmnd
+rgb_hz: 30.0
+# This YAML is used only for dataset discovery in VSLAM-LAB.
+# The actual dataset logic is implemented in scripts/dataset_hmnd.py
+# Sequence list can be left empty; HMND_dataset auto-discovers under VSLAM-LAB-Benchmark/HMND.
+sequence_names: []
+
+

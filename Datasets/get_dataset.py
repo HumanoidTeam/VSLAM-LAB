@@ -1,11 +1,23 @@
 # ADD your imports here
 try:
     import sys, os
-    # Add scripts path so custom dataset module can be imported without modifying VSLAM-LAB structure
-    _CUSTOM_SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'src', 'scripts')
+    # Try environment override first
+    _CUSTOM_SCRIPTS = os.environ.get('HMND_VISLAM_SCRIPTS', '')
+    if not _CUSTOM_SCRIPTS:
+        # Compute from this file: <repo>/vislam/vslam-lab/Datasets -> <repo>/vislam/src/scripts
+        _CUSTOM_SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'src', 'scripts')
     _CUSTOM_SCRIPTS = os.path.normpath(_CUSTOM_SCRIPTS)
     if os.path.isdir(_CUSTOM_SCRIPTS) and _CUSTOM_SCRIPTS not in sys.path:
         sys.path.insert(0, _CUSTOM_SCRIPTS)
+    else:
+        # Try via VSLAM-LAB path_constants parent
+        try:
+            from path_constants import VSLAM_LAB_DIR  # type: ignore
+            _ALT_SCRIPTS = os.path.normpath(os.path.join(VSLAM_LAB_DIR, '..', 'src', 'scripts'))
+            if os.path.isdir(_ALT_SCRIPTS) and _ALT_SCRIPTS not in sys.path:
+                sys.path.insert(0, _ALT_SCRIPTS)
+        except Exception:
+            pass
     from dataset_hmnd import HMND_dataset  # type: ignore
 except Exception:
     HMND_dataset = None  # type: ignore
