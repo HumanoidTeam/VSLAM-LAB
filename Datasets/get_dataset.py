@@ -1,4 +1,14 @@
 # ADD your imports here
+try:
+    import sys, os
+    # Add scripts path so custom dataset module can be imported without modifying VSLAM-LAB structure
+    _CUSTOM_SCRIPTS = os.path.join(os.path.dirname(os.path.dirname(__file__)), '..', 'src', 'scripts')
+    _CUSTOM_SCRIPTS = os.path.normpath(_CUSTOM_SCRIPTS)
+    if os.path.isdir(_CUSTOM_SCRIPTS) and _CUSTOM_SCRIPTS not in sys.path:
+        sys.path.insert(0, _CUSTOM_SCRIPTS)
+    from dataset_hmnd import HMND_dataset  # type: ignore
+except Exception:
+    HMND_dataset = None  # type: ignore
 
 from Datasets.dataset_rgbdtum import RGBDTUM_dataset
 from Datasets.dataset_eth import ETH_dataset
@@ -73,6 +83,8 @@ def get_dataset(dataset_name, benchmark_path):
         "ut_coda": lambda: UT_CODA_dataset(benchmark_path),
         "ntnu_arl_uw": lambda: NTNU_ARL_UW_dataset(benchmark_path),
         "reefslam": lambda: REEFSLAM_dataset(benchmark_path),
+        # Custom datasets registered locally
+        "hmnd": (lambda: HMND_dataset(benchmark_path)) if HMND_dataset else (lambda: "Invalid case"),
     }
 
     return switcher.get(dataset_name, lambda: "Invalid case")()
