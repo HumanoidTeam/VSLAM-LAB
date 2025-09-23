@@ -86,11 +86,26 @@ class BaselineVSLAMLab:
         return os.path.isfile(self.settings_yaml)
     
     def kill_process(self, process):
-        os.killpg(os.getpgid(process.pid), signal.SIGTERM)  
+        pgid = os.getpgid(process.pid)
+        # Try graceful INT first so apps can cleanup
         try:
-            process.wait(timeout=5) 
-        except subprocess.TimeoutExpired:
-            os.killpg(os.getpgid(process.pid), signal.SIGKILL) 
+            os.killpg(pgid, signal.SIGINT)
+            process.wait(timeout=2)
+        except Exception:
+            pass
+        # Then TERM
+        if process.poll() is None:
+            try:
+                os.killpg(pgid, signal.SIGTERM)
+                process.wait(timeout=3)
+            except Exception:
+                pass
+        # Finally KILL if stubborn
+        if process.poll() is None:
+            try:
+                os.killpg(pgid, signal.SIGKILL)
+            except Exception:
+                pass
         print_msg(SCRIPT_LABEL, "Process killed.",'error')
 
     def monitor_memory(self, process, interval, comment_queue, success_flag, memory_stats):
@@ -159,12 +174,27 @@ class BaselineVSLAMLab:
         memory_stats = {}
         with open(log_file_path, 'w') as log_file:
             print(f"{ws(8)}log file: {log_file_path}")
-            process = subprocess.Popen(command, shell=True, stdout=log_file, stderr=log_file, text=True, preexec_fn=os.setsid)
+            # Start child in its own session so we can kill the whole tree via killpg
+            process = subprocess.Popen(
+                command,
+                shell=True,
+                stdout=log_file,
+                stderr=log_file,
+                text=True,
+                start_new_session=True,
+            )
             memory_thread = threading.Thread(target=self.monitor_memory, args=(process, 10, comment_queue, success_flag, memory_stats))
             memory_thread.start()
 
             try:
                 _, _ = process.communicate(timeout=timeout_seconds)
+            except KeyboardInterrupt:
+                print_msg(SCRIPT_LABEL, "Interrupted by user (Ctrl+C). Terminating baseline...", 'warning')
+                comments = "Interrupted by user (Ctrl+C). Process killed."
+                success_flag[0] = False
+                self.kill_process(process)
+                # Allow thread to notice and exit
+                # Do not re-raise to keep logs written and cleanup consistent
             except subprocess.TimeoutExpired:
                 print_msg(SCRIPT_LABEL, f"Process took too long > {timeout_seconds} seconds",'error')
                 comments = f"Process took too long > {timeout_seconds} seconds. Process killed."
