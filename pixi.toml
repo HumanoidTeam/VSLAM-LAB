@@ -748,11 +748,17 @@ cuda = "12.0"
 [feature.okvis2-dev.tasks]
 git-clone = {cmd = "git-clone.sh VSLAM-LAB okvis2 OKVIS2-DEV"}
 # install = {cmd = "mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j12", cwd = "Baselines/OKVIS2-DEV"}
-install = {cmd = "./build.sh", cwd = "Baselines/OKVIS2-DEV"}
+install = {cmd = "bash -lc 'set -euo pipefail; { rm -rf build bin lib; if command -v ninja >/dev/null 2>&1; then GEN=Ninja; else GEN=\"Unix Makefiles\"; fi; echo \"[OKVIS2][pixi] Using $GEN\"; cmake -G \"$GEN\" -B build -S . -DCMAKE_PREFIX_PATH=$(pwd) -DCMAKE_INSTALL_PREFIX=$(pwd); cmake --build build --config Release -j$(nproc); } 2>&1 | tee install_okvis2-dev.txt'", cwd = "Baselines/OKVIS2-DEV"}
 execute_mono_vi = {cmd = "./bin/vslamlab_okvis2_mono_vi",  cwd = "Baselines/OKVIS2-DEV"}
 
 [feature.okvis2-dev.dependencies]
-cmake = "<4"
+cmake = ">=3.25,<4"
+ninja = ">=1.11,<1.13"
+compilers = "*"
+pkg-config = ">=0.29,<0.30"
+make = "*"
+c-compiler = "*"
+cxx-compiler = "*"
 glog = "*"
 blas = "*"
 lapack = "*"
