@@ -51,7 +51,7 @@ def run_sequence(exp_it, exp, baseline, dataset, sequence_name, ablation=False):
 
 
 def create_rgb_exp_csv(exp, dataset, sequence_name, default_parameters = ""):
-    sequence_path = os.path.join(dataset.dataset_path, sequence_name)
+    sequence_path = dataset.resolve_sequence_path(sequence_name)
     exp_folder = os.path.join(exp.folder, dataset.dataset_folder, sequence_name)
 
     if 'rgb_csv' in exp.parameters:

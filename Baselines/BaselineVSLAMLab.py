@@ -192,7 +192,7 @@ class BaselineVSLAMLab:
         }
 
     def build_execute_command_cpp(self, exp_it, exp, dataset, sequence_name):
-        sequence_path = os.path.join(dataset.dataset_path, sequence_name)
+        sequence_path = dataset.resolve_sequence_path(sequence_name)
         exp_folder = os.path.join(exp.folder, dataset.dataset_folder, sequence_name)
         calibration_yaml = os.path.join(sequence_path, 'calibration.yaml')
         rgb_exp_csv = os.path.join(exp_folder, 'rgb_exp.csv')
@@ -232,7 +232,7 @@ class BaselineVSLAMLab:
         return vslamlab_command
 
     def build_execute_command_python(self, exp_it, exp, dataset, sequence_name):
-        sequence_path = os.path.join(dataset.dataset_path, sequence_name)
+        sequence_path = dataset.resolve_sequence_path(sequence_name)
         exp_folder = os.path.join(exp.folder, dataset.dataset_folder, sequence_name)
         calibration_yaml = os.path.join(sequence_path, 'calibration.yaml')
         rgb_exp_csv = os.path.join(exp_folder, 'rgb_exp.csv')

@@ -22,6 +22,11 @@ get-benchmark-path = {cmd = "VSLAMLAB_BENCHMARK=$(python3 -c 'from path_constant
 clean-swap = {cmd = "sudo /sbin/swapoff -a && sudo /sbin/swapon -a"}
 kill-all = {cmd = "pkill -f -e 'droidslam|mast3rslam|dpvo|monogs|orbslam2|colmap|glomap|gensfm|mast3r|vggt|pycuvslam|vslamlab' && sudo /sbin/swapoff -a && sudo /sbin/swapon -a"} 
 
+rig-discover = {cmd = "pixi run --frozen -e vslamlab python Tools/rig_builder.py discover $DATASET $SEQUENCE $OPTIONS", env = {DATASET = "hmnd", SEQUENCE = "HMND", OPTIONS = ""}}
+rig-create = {cmd = "pixi run --frozen -e vslamlab python Tools/rig_builder.py create $DATASET $SEQUENCE --name $NAME --cams $CAMS --ref $REF $FLAGS", env = {DATASET = "hmnd", SEQUENCE = "HMND", NAME = "rear_stereo", CAMS = "rear_left rear_right", REF = "rear_left", FLAGS = "--activate"}}
+rig-activate = {cmd = "pixi run --frozen -e vslamlab python Tools/rig_builder.py activate $DATASET $SEQUENCE $NAME", env = {DATASET = "hmnd", SEQUENCE = "HMND", NAME = "rear_stereo"}}
+
+
 # environments begin
 [environments]
 vslamlab = {features = ["vslamlab"], no-default-feature = true}

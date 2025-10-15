@@ -47,6 +47,12 @@ class DatasetVSLAMLab:
         self.modes: List[str] = cfg.get("modes", ["mono"])
         self.sequence_nicknames: List[str] = []
 
+    def resolve_sequence_path(self, sequence_name: str) -> str:
+        """Default resolution: dataset_root/sequence_name.
+        Datasets can override this to flatten or customize their structure.
+        """
+        return os.path.join(self.dataset_path, sequence_name)
+
     ####################################################################################################################
     # Download methods
     def download_sequence(self, sequence_name):
@@ -57,10 +63,8 @@ class DatasetVSLAMLab:
             #print(f"{SCRIPT_LABEL}Sequence {self.dataset_color}{sequence_name}:\033[92m downloaded\033[0m")
             return
         if sequence_availability == "corrupted":
-            print(f"{ws(8)}Some files in sequence {sequence_name} are corrupted.")
-            print(f"{ws(8)}Removing and downloading again sequence {sequence_name} ")
-            print(f"{ws(8)}THIS PART OF THE CODE IS NOT YET IMPLEMENTED. REMOVE THE FILES MANUALLY")
-            sys.exit(1)
+            # Regenerate derived files for this sequence (rgb links/csv, imu link, calibration)
+            print(f"{ws(8)}Some files in sequence {sequence_name} are corrupted or missing. Regenerating from dataset metadata...")
 
         # Download process
         if not os.path.exists(self.dataset_path):
@@ -153,7 +157,7 @@ class DatasetVSLAMLab:
                 file.write(f"{line}\n")
 
     def check_sequence_availability(self, sequence_name):
-        sequence_path = os.path.join(self.dataset_path, sequence_name)
+        sequence_path = self.resolve_sequence_path(sequence_name)
         if os.path.exists(sequence_path):
             sequence_complete = self.check_sequence_integrity(sequence_name, verbose=True)
             if sequence_complete:
@@ -166,7 +170,7 @@ class DatasetVSLAMLab:
         
         complete_sequence = True
 
-        sequence_path = os.path.join(self.dataset_path, sequence_name)
+        sequence_path = self.resolve_sequence_path(sequence_name)
         if not os.path.exists(sequence_path):
             if verbose:
                 print(f"        The folder {sequence_path} doesn't exist !!!!!")
@@ -210,9 +214,16 @@ class DatasetVSLAMLab:
     # Utils
 
     def contains_sequence(self, sequence_name_ref):
+        # Allow dynamic sequences if a corresponding folder exists on disk
         for sequence_name in self.sequence_names:
             if sequence_name == sequence_name_ref:
                 return True
+        try:
+            dynamic_path = self.resolve_sequence_path(sequence_name_ref)
+            if os.path.exists(dynamic_path):
+                return True
+        except Exception:
+            pass
         return False
 
     def print_sequence_names(self):
