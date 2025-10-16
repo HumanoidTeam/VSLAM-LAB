@@ -44,6 +44,6 @@ class ORBSLAM3_baseline_dev(ORBSLAM3_baseline):
         super().__init__(baseline_name = 'orbslam3-dev', baseline_folder = 'ORB_SLAM3-DEV')
 
     def is_installed(self):
-        is_installed = os.path.isfile(os.path.join(self.baseline_path, 'build', 'bin', 'vslamlab_orbslam3_mono_vi'))
+        is_installed = os.path.isfile(os.path.join(self.baseline_path, 'bin', 'vslamlab_orbslam3_mono_vi'))
         return (True, 'is installed') if is_installed else (False, 'not installed (auto install available)') 
     
