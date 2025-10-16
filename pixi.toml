@@ -779,7 +779,9 @@ platforms = ["linux-64"]
 [feature.orbslam3-dev.tasks]
 git-clone = {cmd = "git-clone.sh VSLAM-LAB ORB_SLAM3 ORB_SLAM3-DEV"}
 install = {cmd = "./build.sh", cwd = "Baselines/ORB_SLAM3-DEV"}
-execute-mono_vi = {cmd = "./bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
+execute-mono_vi = {cmd = "./build/bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
+execute-stereo_vi = {cmd = "./build/bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
+execute-multi_vi = {cmd = "./build/bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
 
 [feature.orbslam3-dev.dependencies]
 compilers = "*"
