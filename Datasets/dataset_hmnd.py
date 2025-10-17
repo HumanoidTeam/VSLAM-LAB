@@ -291,7 +291,7 @@ class HMND_dataset(DatasetVSLAMLab):
             cam = cid2cam[cid]
             # 0-indexed key (e.g., T_b_c0, T_b_c1)
             imu_transforms[f"T_b_c{idx}"] = cam['T_b_c']
-            # 1-indexed duplicate (e.g., T_b_c1, T_b_c2) for OKVIS variants
+            # 1-indexed for OKVIS2 (camId=0 expects T_b_c1, camId=1 expects T_b_c2)
             imu_transforms[f"T_b_c{idx+1}"] = cam['T_b_c']
 
         # IMU noise
