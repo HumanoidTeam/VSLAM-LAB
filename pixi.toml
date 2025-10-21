@@ -20,7 +20,7 @@ print-datasets = {cmd = "pixi run --frozen -e vslamlab python vslamlab_utilities
 print-baselines = {cmd = "pixi run --frozen -e vslamlab python vslamlab_utilities.py print_baselines"}
 get-benchmark-path = {cmd = "VSLAMLAB_BENCHMARK=$(python3 -c 'from path_constants import VSLAMLAB_BENCHMARK; print(VSLAMLAB_BENCHMARK)')"}
 clean-swap = {cmd = "sudo /sbin/swapoff -a && sudo /sbin/swapon -a"}
-kill-all = {cmd = "pkill -f -e 'droidslam|mast3rslam|dpvo|monogs|orbslam2|colmap|glomap|gensfm|mast3r|vggt|pycuvslam|vslamlab' && sudo /sbin/swapoff -a && sudo /sbin/swapon -a"} 
+kill-all = {cmd = "pkill -f -e 'droidslam|mast3rslam|dpvo|monogs|orbslam2|colmap|glomap|gensfm|mast3r|vggt|pycuvslam|kimera|vslamlab' && sudo /sbin/swapoff -a && sudo /sbin/swapon -a"} 
 
 rig-discover = {cmd = "pixi run --frozen -e vslamlab python Tools/rig_builder.py discover $DATASET $SEQUENCE $OPTIONS", env = {DATASET = "hmnd", SEQUENCE = "HMND", OPTIONS = ""}}
 rig-create = {cmd = "pixi run --frozen -e vslamlab python Tools/rig_builder.py create $DATASET $SEQUENCE --name $NAME --cams $CAMS --ref $REF $FLAGS", env = {DATASET = "hmnd", SEQUENCE = "HMND", NAME = "rear_stereo", CAMS = "rear_left rear_right", REF = "rear_left", FLAGS = "--activate"}}
@@ -59,6 +59,7 @@ vggt-dev = {features = ["vggt-dev", "cuda126", "py11"], no-default-feature = tru
 
 orbslam3-dev = {features = ["orbslam3-dev", "x11", "opengl"], no-default-feature = true}
 okvis2-dev = {features = ["okvis2-dev", "cuda126", "py11"], no-default-feature = true}
+kimera-dev = {features = ["kimera-dev", "x11", "opengl"], no-default-feature = true}
 
 # environments end
 
@@ -827,3 +828,40 @@ librealsense = "*"
 openmp = "*"
 libgfortran = "3.*"
 # okvis2-dev end
+
+########################################################################################################################
+########################################################################################################################
+# kimera-dev begin
+[feature.kimera-dev]
+channels = ["https://fast.prefix.dev/conda-forge", "fontan"]
+platforms = ["linux-64"]
+
+[feature.kimera-dev.tasks]
+git-clone = {cmd = "git clone --recursive https://github.com/HumanoidTeam/Kimera-VIO.git Baselines/Kimera-VIO-DEV"}
+install = {cmd = "./build.sh -v", cwd = "Baselines/Kimera-VIO-DEV"}
+execute-mono_vi = {cmd = "./bin/vslamlab_kimera_mono_vi", cwd = "Baselines/Kimera-VIO-DEV"}
+execute-stereo_vi = {cmd = "./bin/vslamlab_kimera_stereo_vi", cwd = "Baselines/Kimera-VIO-DEV"}
+
+[feature.kimera-dev.dependencies]
+compilers = "*"
+ninja = ">=1.12.1 ,<1.13"
+cmake = ">=3.31.1 ,<3.32"
+pkg-config = ">=0.29.2 ,<0.30"
+opencv = ">=4.10.0 ,<5"
+eigen = ">=3.4.0 ,<3.5.0"
+yaml-cpp = ">=0.8.0,<0.9"
+boost-cpp = "*"
+glog = "*"
+gflags = "*"
+pangolin = "*"
+metis = "*"
+gtsam = "*"
+tbb = "*"
+tbb-devel = "*"
+python = "*"
+pip = "*"
+
+[feature.kimera-dev.pypi-dependencies]
+opencv-contrib-python = ">=4.10.0,<5"
+# Following Kimera-VIO Dockerfile approach - use system packages where possible
+# kimera-dev end

@@ -20,6 +20,7 @@ from Baselines.baseline_orbslam3 import ORBSLAM3_baseline_dev
 from Baselines.baseline_okvis2 import OKVIS2_baseline
 from Baselines.baseline_okvis2 import OKVIS2_baseline_dev
 from Baselines.baseline_pycuvslam import PYCUVSLAM_baseline
+from Baselines.baseline_kimera import KIMERA_baseline_dev
 
 def get_baseline_switcher():
     return {
@@ -46,6 +47,7 @@ def get_baseline_switcher():
         "okvis2": lambda: OKVIS2_baseline(),
         "okvis2-dev": lambda: OKVIS2_baseline_dev(),
         "pycuvslam": lambda: PYCUVSLAM_baseline(),
+        "kimera-dev": lambda: KIMERA_baseline_dev(),
     }
 
 def get_baseline(baseline_name):
