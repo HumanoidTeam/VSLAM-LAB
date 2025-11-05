@@ -33,11 +33,7 @@ from Datasets.dataset_videos import VIDEOS_dataset
 from Datasets.dataset_sweetcorals import SWEETCORALS_dataset
 from Datasets.dataset_ntnu_arl_uw import NTNU_ARL_UW_dataset
 from Datasets.dataset_reefslam import REEFSLAM_dataset
-# Use our custom HMND dataset from src/scripts
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../src/scripts'))
-from dataset_hmnd import HMND_dataset
+from Datasets.dataset_hmnd import HMND_dataset
 
 SCRIPT_LABEL = f"\033[95m[{os.path.basename(__file__)}]\033[0m "
 
