@@ -181,6 +181,21 @@ def get_baseline(baseline_name):
     return switcher.get(baseline_name, lambda: "Invalid case")()
 ```
 
+## Extending VSLAM-LAB
+
+### Adding New SLAM Systems
+For detailed instructions on integrating new SLAM systems into VSLAM-LAB, including:
+- Processing MCAP files into datasets with multi-camera rigs
+- Creating C++ wrappers for SLAM executables
+- Configuring Pixi environments and dependencies
+
+See the comprehensive guide: [docs/AddingNewSLAMSystem.md](docs/AddingNewSLAMSystem.md)
+
+### Quick Reference for Common Tasks
+- **Process MCAP files**: See dataset generation workflow in the guide
+- **Create camera rigs**: `pixi run rig-discover` and `pixi run rig-create`
+- **Add new baseline**: Follow the 5-step process in the guide
+
 ## License
 **VSLAM-LAB** is released under a **LICENSE.txt**. For a list of code dependencies which are not property of the authors of **VSLAM-LAB**, please check **docs/Dependencies.md**.
 
