@@ -1,11 +1,15 @@
 dataset_name: hmnd
 
-rgb_hz: 20.0
-imu_hz: 200.0
+rgb_hz: 30.0
+imu_hz: 500.0
 modes: ['mono', 'stereo', 'mono-vi', 'stereo-vi', 'multi-vi']
 
+# Calibration sequence for rig-level IMU bias estimation
+# This sequence should be stationary (device held still) for accurate bias calibration
+calibration_sequence: static
+
 sequence_names:
-  - HMND
+  - white_wall
 
 
 
