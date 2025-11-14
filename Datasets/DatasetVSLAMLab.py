@@ -47,6 +47,12 @@ class DatasetVSLAMLab:
         self.modes: List[str] = cfg.get("modes", ["mono"])
         self.sequence_nicknames: List[str] = []
 
+    def resolve_sequence_path(self, sequence_name: str) -> str:
+        """Default resolution: dataset_root/sequence_name.
+        Datasets can override this to flatten or customize their structure.
+        """
+        return os.path.join(self.dataset_path, sequence_name)
+
     ####################################################################################################################
     # Download methods
     def download_sequence(self, sequence_name):
@@ -57,10 +63,8 @@ class DatasetVSLAMLab:
             #print(f"{SCRIPT_LABEL}Sequence {self.dataset_color}{sequence_name}:\033[92m downloaded\033[0m")
             return
         if sequence_availability == "corrupted":
-            print(f"{ws(8)}Some files in sequence {sequence_name} are corrupted.")
-            print(f"{ws(8)}Removing and downloading again sequence {sequence_name} ")
-            print(f"{ws(8)}THIS PART OF THE CODE IS NOT YET IMPLEMENTED. REMOVE THE FILES MANUALLY")
-            sys.exit(1)
+            # Regenerate derived files for this sequence (rgb links/csv, imu link, calibration)
+            print(f"{ws(8)}Some files in sequence {sequence_name} are corrupted or missing. Regenerating from dataset metadata...")
 
         # Download process
         if not os.path.exists(self.dataset_path):
@@ -99,7 +103,7 @@ class DatasetVSLAMLab:
     def get_download_issues(self, sequence_names):
         return {}
 
-    def write_calibration_yaml(self, sequence_name, camera0=None, camera1=None, imu=None, rgbd=None, stereo=None):
+    def write_calibration_yaml(self, sequence_name, camera0=None, camera1=None, imu=None, rgbd=None, stereo=None, cameras: list = None, imu_transforms: dict = None):
     #Write calibration YAML file with flexible sensor configuration.
     #Args:
     #    sequence_name: Name of the sequence
@@ -113,20 +117,30 @@ class DatasetVSLAMLab:
         
         yaml_content_lines = ["%YAML:1.0", ""]
 
-        # Camera0 parameters (required)
-        if camera0:
-            yaml_content_lines.extend(["", "# Camera0 calibration and distortion parameters"])
-            yaml_content_lines.extend(_get_camera_yaml_section(self.dataset_path, camera0, sequence_name, self.rgb_hz, "Camera0"))
+        # New: arbitrary list of cameras (overrides camera0/1 if provided)
+        if cameras and isinstance(cameras, list) and len(cameras) > 0:
+            for idx, cam_params in enumerate(cameras):
+                yaml_content_lines.extend(["", f"# Camera{idx} calibration and distortion parameters"])
+                # Allow explicit width/height in cam_params
+                yaml_content_lines.extend(_get_camera_yaml_section(self.dataset_path, cam_params, sequence_name, self.rgb_hz, f"Camera{idx}"))
+        else:
+            # Legacy: Camera0
+            if camera0:
+                yaml_content_lines.extend(["", "# Camera0 calibration and distortion parameters"])
+                yaml_content_lines.extend(_get_camera_yaml_section(self.dataset_path, camera0, sequence_name, self.rgb_hz, "Camera0"))
 
-        # Camera1 parameters (for stereo)
-        if camera1:
-            yaml_content_lines.extend(["", "# Camera1 calibration and distortion parameters"])
-            yaml_content_lines.extend(_get_camera_yaml_section(self.dataset_path, camera1, sequence_name, self.rgb_hz, "Camera1"))
+            # Legacy: Camera1
+            if camera1:
+                yaml_content_lines.extend(["", "# Camera1 calibration and distortion parameters"])
+                yaml_content_lines.extend(_get_camera_yaml_section(self.dataset_path, camera1, sequence_name, self.rgb_hz, "Camera1"))
 
         # IMU parameters
-        if imu:
+        if imu or imu_transforms:
             yaml_content_lines.extend(["", "# IMU parameters"])
-            yaml_content_lines.extend(_get_imu_yaml_section(imu))
+            if imu_transforms:
+                yaml_content_lines.extend(_get_imu_yaml_section({'transforms': imu_transforms, **(imu or {})}))
+            else:
+                yaml_content_lines.extend(_get_imu_yaml_section(imu))
 
         # RGBD parameters
         if rgbd:
@@ -143,7 +157,7 @@ class DatasetVSLAMLab:
                 file.write(f"{line}\n")
 
     def check_sequence_availability(self, sequence_name):
-        sequence_path = os.path.join(self.dataset_path, sequence_name)
+        sequence_path = self.resolve_sequence_path(sequence_name)
         if os.path.exists(sequence_path):
             sequence_complete = self.check_sequence_integrity(sequence_name, verbose=True)
             if sequence_complete:
@@ -156,7 +170,7 @@ class DatasetVSLAMLab:
         
         complete_sequence = True
 
-        sequence_path = os.path.join(self.dataset_path, sequence_name)
+        sequence_path = self.resolve_sequence_path(sequence_name)
         if not os.path.exists(sequence_path):
             if verbose:
                 print(f"        The folder {sequence_path} doesn't exist !!!!!")
@@ -200,9 +214,16 @@ class DatasetVSLAMLab:
     # Utils
 
     def contains_sequence(self, sequence_name_ref):
+        # Allow dynamic sequences if a corresponding folder exists on disk
         for sequence_name in self.sequence_names:
             if sequence_name == sequence_name_ref:
                 return True
+        try:
+            dynamic_path = self.resolve_sequence_path(sequence_name_ref)
+            if os.path.exists(dynamic_path):
+                return True
+        except Exception:
+            pass
         return False
 
     def print_sequence_names(self):

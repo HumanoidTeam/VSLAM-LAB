@@ -170,6 +170,11 @@ class BaselineVSLAMLab:
                 comments = f"Process took too long > {timeout_seconds} seconds. Process killed."
                 success_flag[0] = False
                 self.kill_process(process)
+            except KeyboardInterrupt:
+                print_msg(SCRIPT_LABEL, "Interrupted by user (Ctrl+C). Terminating process...", 'error')
+                comments = "Interrupted by user (Ctrl+C). Process killed."
+                success_flag[0] = False
+                self.kill_process(process)
             
             memory_thread.join()
             while not comment_queue.empty():
@@ -187,7 +192,7 @@ class BaselineVSLAMLab:
         }
 
     def build_execute_command_cpp(self, exp_it, exp, dataset, sequence_name):
-        sequence_path = os.path.join(dataset.dataset_path, sequence_name)
+        sequence_path = dataset.resolve_sequence_path(sequence_name)
         exp_folder = os.path.join(exp.folder, dataset.dataset_folder, sequence_name)
         calibration_yaml = os.path.join(sequence_path, 'calibration.yaml')
         rgb_exp_csv = os.path.join(exp_folder, 'rgb_exp.csv')
@@ -217,10 +222,17 @@ class BaselineVSLAMLab:
         if "mode:mono-vi" in vslamlab_command:
             vslamlab_command = f"pixi run --frozen -e {self.baseline_name} execute-mono_vi " + ' '.join(vslamlab_command)
 
+        # Route stereo-vi and multi-vi to their respective pixi tasks if present
+        if "mode:stereo-vi" in vslamlab_command:
+            vslamlab_command = f"pixi run --frozen -e {self.baseline_name} execute-stereo_vi " + ' '.join(vslamlab_command)
+
+        if "mode:multi-vi" in vslamlab_command:
+            vslamlab_command = f"pixi run --frozen -e {self.baseline_name} execute-multi_vi " + ' '.join(vslamlab_command)
+
         return vslamlab_command
 
     def build_execute_command_python(self, exp_it, exp, dataset, sequence_name):
-        sequence_path = os.path.join(dataset.dataset_path, sequence_name)
+        sequence_path = dataset.resolve_sequence_path(sequence_name)
         exp_folder = os.path.join(exp.folder, dataset.dataset_folder, sequence_name)
         calibration_yaml = os.path.join(sequence_path, 'calibration.yaml')
         rgb_exp_csv = os.path.join(exp_folder, 'rgb_exp.csv')

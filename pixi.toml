@@ -22,6 +22,8 @@ get-benchmark-path = {cmd = "VSLAMLAB_BENCHMARK=$(python3 -c 'from path_constant
 clean-swap = {cmd = "sudo /sbin/swapoff -a && sudo /sbin/swapon -a"}
 kill-all = {cmd = "pkill -f -e 'droidslam|mast3rslam|dpvo|monogs|orbslam2|colmap|glomap|gensfm|mast3r|vggt|pycuvslam|vslamlab' && sudo /sbin/swapoff -a && sudo /sbin/swapon -a"} 
 
+
+
 # environments begin
 [environments]
 vslamlab = {features = ["vslamlab"], no-default-feature = true}
@@ -268,6 +270,9 @@ platforms = ["linux-64"]
 [feature.okvis2.tasks]
 git-clone = {cmd = 'git clone https://huggingface.co/vslamlab/okvis2 Baselines/OKVIS2'}
 execute-mono_vi = {cmd = "vslamlab_okvis2_mono_vi"}
+execute-stereo_vi = {cmd = "vslamlab_okvis2_mono_vi"}
+execute-multi_vi = {cmd = "vslamlab_okvis2_mono_vi"}
+execute-rig_vi = {cmd = "vslamlab_okvis2_mono_vi"}
 
 [feature.okvis2.dependencies]
 okvis2 = {channel="fontan"}
@@ -769,9 +774,11 @@ channels = ["https://fast.prefix.dev/conda-forge", "fontan"]
 platforms = ["linux-64"]
 
 [feature.orbslam3-dev.tasks]
-git-clone = {cmd = "git-clone.sh VSLAM-LAB ORB_SLAM3 ORB_SLAM3-DEV"}
+git-clone = {cmd = "git clone git@github.com:HumanoidTeam/ORB_SLAM3.git Baselines/ORB_SLAM3-DEV && cd Baselines/ORB_SLAM3-DEV && git submodule update --init --recursive"}
 install = {cmd = "./build.sh", cwd = "Baselines/ORB_SLAM3-DEV"}
 execute-mono_vi = {cmd = "./bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
+execute-stereo_vi = {cmd = "./bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
+execute-multi_vi = {cmd = "./bin/vslamlab_orbslam3_mono_vi",  cwd = "Baselines/ORB_SLAM3-DEV"}
 
 [feature.orbslam3-dev.dependencies]
 compilers = "*"
@@ -797,10 +804,13 @@ platforms = ["linux-64"]
 cuda = "12.0"
 
 [feature.okvis2-dev.tasks]
-git-clone = {cmd = "git-clone.sh VSLAM-LAB okvis2 OKVIS2-DEV"}
+git-clone = {cmd = "git clone -b hmnd https://github.com/HumanoidTeam/okvis2.git Baselines/OKVIS2-DEV && cd Baselines/OKVIS2-DEV && git submodule update --init --recursive"}
 # install = {cmd = "mkdir build && cd build && cmake -DCMAKE_BUILD_TYPE=Release .. && make -j12", cwd = "Baselines/OKVIS2-DEV"}
-install = {cmd = "./build.sh", cwd = "Baselines/OKVIS2-DEV"}
+install = {cmd = "./build.sh -v", cwd = "Baselines/OKVIS2-DEV"}
 execute-mono_vi = {cmd = "./bin/vslamlab_okvis2_mono_vi",  cwd = "Baselines/OKVIS2-DEV"}
+execute-stereo_vi = {cmd = "./bin/vslamlab_okvis2_mono_vi",  cwd = "Baselines/OKVIS2-DEV"}
+execute-multi_vi = {cmd = "./bin/vslamlab_okvis2_mono_vi",  cwd = "Baselines/OKVIS2-DEV"}
+execute-rig_vi = {cmd = "./bin/vslamlab_okvis2_mono_vi",  cwd = "Baselines/OKVIS2-DEV"}
 
 [feature.okvis2-dev.dependencies]
 cmake = "<4"
